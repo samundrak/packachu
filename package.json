@@ -1,7 +1,6 @@
 {
   "name": "packachu",
   "version": "0.0.0",
-  "private": true,
   "bin": {
     "packachu": "./bin/packachu.js"
   },
