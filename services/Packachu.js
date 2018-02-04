@@ -36,6 +36,7 @@ class Packachu {
 
   static findOne (deps, target) {
     let dependency = null;
+   
     deps.every((element) => {
       if (element.has(target)) {
         dependency = element.get(target);
@@ -43,43 +44,39 @@ class Packachu {
       }
       return true;
     });
-    return dependency;
+    if(target === 'ajv') {
+    dependency.getPackage().readModules().getDependencies()
+      .then(async (d) => {
+        const devD = await d.get('co').getPackage();
+        console.log(devD)
+      })
+
+    } return dependency;
   }
 
   static async getDependencyMeta (dependencyName, nestedDeps, onComplete) {
     const deps = await global.allDependencies;
     let dependency = Packachu.findOne(deps, dependencyName);
     if (!nestedDeps || !nestedDeps.length) {
-      return Promise.resolve(dependency);
+      return onComplete(null, dependency);
     }
-    let parentDeps = await dependency.getPackage()
-      .readModules()
-      .getAllDependencies();
-    let singleDep = null;
-    return async.every(
-      nestedDeps,
-      (dep, callback) => {
-        const tempDep = Packachu.findOne(parentDeps, dep);
-        if (!tempDep) {
-          return callback(new Error(`Module ${dep} not found.`));
+   
+    let rootDeps = await dependency.getPackage().readModules().getAllDependencies();
+    let tempDep;
+    async.every(nestedDeps,async (dep, callback) => {
+        tempDep = Packachu.findOne(rootDeps, dep);
+        if(!tempDep) {
+          return false;
+        }
+        rootDeps = await tempDep.getPackage().readModules().getAllDependencies();
+        return tempDep;
+    }, (error, result) => {
+        if(error) {
+          return onComplete(error);
         }
 
-        return tempDep.getPackage()
-          .readModules()
-          .getAllDependencies()
-          .then((tempDepDeps) => {
-            parentDeps = tempDepDeps;
-            callback(null, parentDeps);
-          })
-          .catch((err) => {
-            return callback(err);
-          });
-      },
-      (err, result) => {
-        console.log(err, result, parentDeps);
-        onComplete(err, result ? singleDep : null);
-      },
-    );
+        onComplete(null, tempDep);
+    });    
   }
 }
 

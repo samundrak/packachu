@@ -18,7 +18,7 @@ module.exports = {
     const nested = req.params[0].split('/')
       .filter(item => !!item);
     try {
-      Packachu.getDependencyMeta(
+      await Packachu.getDependencyMeta(
         req.params.package,
         nested,
         (err, result) => {

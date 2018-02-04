@@ -16,19 +16,25 @@ const fn = function findOne (deps, target) {
   return dependency;
 };
 
-(async () => {
-  const express = fn(await global.allDependencies, 'express');
-  const accepts = fn(await express.getPackage()
-    .readModules()
-    .getAllDependencies(), 'accepts');
-  const eslint = fn(await accepts.getPackage()
-    .readModules()
-    .getAllDependencies(), 'eslint');
-  const ajv = fn(await eslint.getPackage()
-    .readModules()
-    .getAllDependencies(), 'ajv');
-  // var resolve = require('resolve');
-  // var res = resolve.sync('beefy',{ baseDir: eslint.getPackage()._hostLocation});
-  // console.log(res);
-  console.log(ajv);
-})();
+const gen = function *(deps, target) {
+  yield target
+}
+
+const g = gen();
+console.log(g);
+// (async () => {
+  // const express = fn(await global.allDependencies, 'express');
+  // const accepts = fn(await express.getPackage()
+  //   .readModules()
+  //   .getAllDependencies(), 'accepts');
+  // const eslint = fn(await accepts.getPackage()
+  //   .readModules()
+  //   .getAllDependencies(), 'eslint');
+  // const ajv = fn(await eslint.getPackage()
+  //   .readModules()
+  //   .getAllDependencies(), 'ajv');
+  // // var resolve = require('resolve');
+  // // var res = resolve.sync('beefy',{ baseDir: eslint.getPackage()._hostLocation});
+  // // console.log(res);
+  // console.log(ajv);
+// })();
